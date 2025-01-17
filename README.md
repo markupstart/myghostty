@@ -1,6 +1,3 @@
-Here's a `README.md` for your script:
-
-```markdown
 # Ghostty Installation Script for Debian 12
 
 This script automates the installation of **Ghostty** on Debian 12 using source files. It installs necessary dependencies, downloads and installs **Zig 0.13.0**, and builds **Ghostty** from source. It also ensures a clean installation by removing temporary files after the process.

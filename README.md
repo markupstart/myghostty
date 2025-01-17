@@ -14,8 +14,8 @@ This script automates the installation of **Ghostty** on Debian 12 using source 
 Clone the repository containing this script to your local machine:
 
 ```bash
-git clone https://github.com/your-repository/ghostty-install-script.git
-cd ghostty-install-script
+git clone https://github.com/drewgrif/myghostty
+cd myghostty
 ```
 
 ### 2. Make the script executable
@@ -64,11 +64,3 @@ If you encounter any issues:
 - Check if `zig` is available in your PATH with `which zig` or `zig version`.
 - Review the logs printed during the script execution for any error messages.
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-```
-
-### Notes:
-1. **GitHub Repo**: You may want to replace `https://github.com/your-repository/ghostty-install-script.git` with the actual URL if you are hosting this on GitHub or elsewhere.
-2. **Verifying Ghostty**: The readme suggests checking if **Ghostty** is installed by verifying the executable or checking installation paths; you can customize that section based on specific verification steps for Ghostty, if needed.

@@ -56,7 +56,7 @@ fi
 # Clean up temporary files
 echo "Cleaning up temporary files..."
 if [[ -d "$TMP_DIR" ]]; then
-    rm -rf "$TMP_DIR"
+    sudo rm -rf "$TMP_DIR"
     echo "Temporary files removed."
 else
     echo "No temporary files to remove."

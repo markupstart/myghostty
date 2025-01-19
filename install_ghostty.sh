@@ -30,10 +30,10 @@ if command -v zig &> /dev/null && check_zig_version; then
 else
     echo "Downloading and installing Zig $ZIG_REQUIRED_VERSION..."
     ZIG_URL="https://ziglang.org/download/$ZIG_REQUIRED_VERSION/zig-linux-x86_64-$ZIG_REQUIRED_VERSION.tar.xz"
-    cd $TMP_DIR
-    wget $ZIG_URL
-    tar -xf zig-linux-x86_64-$ZIG_REQUIRED_VERSION.tar.xz
-    sudo mv zig-linux-x86_64-$ZIG_REQUIRED_VERSION /usr/local/zig
+    cd "$TMP_DIR"
+    wget "$ZIG_URL"
+    tar -xf "zig-linux-x86_64-$ZIG_REQUIRED_VERSION.tar.xz"
+    sudo mv "zig-linux-x86_64-$ZIG_REQUIRED_VERSION" /usr/local/zig
     sudo ln -sf /usr/local/zig/zig /usr/local/bin/zig
     echo "Zig $ZIG_REQUIRED_VERSION installed successfully."
 fi
@@ -55,6 +55,11 @@ fi
 
 # Clean up temporary files
 echo "Cleaning up temporary files..."
-rm -rf $TMP_DIR
+if [[ -d "$TMP_DIR" ]]; then
+    rm -rf "$TMP_DIR"
+    echo "Temporary files removed."
+else
+    echo "No temporary files to remove."
+fi
 
 echo "Installation process completed successfully!"

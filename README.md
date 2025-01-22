@@ -68,3 +68,4 @@ If you encounter any issues:
 > [!TIP]
 > If you are getting an error using ```clear``` or ```CTRL+L``` command in SSH, look at SSH https://ghostty.org/docs/help/terminfo#ssh
 
+![2025-01-22_18-55](https://github.com/user-attachments/assets/6879a35c-a609-4215-9c52-674c64b46683)

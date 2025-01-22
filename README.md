@@ -64,3 +64,7 @@ If you encounter any issues:
 - Check if `zig` is available in your PATH with `which zig` or `zig version`.
 - Review the logs printed during the script execution for any error messages.
 
+
+> [!TIP]
+> If you are getting an error using ```clear``` or ```CTRL+L``` command in SSH, look at [SSH https://ghostty.org/docs/help/terminfo#ssh
+

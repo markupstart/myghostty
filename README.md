@@ -66,5 +66,5 @@ If you encounter any issues:
 
 
 > [!TIP]
-> If you are getting an error using ```clear``` or ```CTRL+L``` command in SSH, look at [SSH https://ghostty.org/docs/help/terminfo#ssh
+> If you are getting an error using ```clear``` or ```CTRL+L``` command in SSH, look at SSH https://ghostty.org/docs/help/terminfo#ssh
 

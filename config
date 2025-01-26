@@ -1,0 +1,19 @@
+
+font-family = SauceCodePro Nerd Font Mono
+font-size = 16
+
+background-opacity = 0.95
+
+# background = #1c1c1c
+# foreground = #80B8FF
+# unfocused-split-opacity = 0.10
+
+keybind = shift+ctrl+r=reload_config
+
+# theme = zenwritten_dark
+# theme = carbonfox
+# theme = GitLab-Dark-Grey
+# theme = 0x96f
+
+ theme = UnderTheSea
+

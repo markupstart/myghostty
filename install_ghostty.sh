@@ -43,7 +43,7 @@ echo "Checking Zig version..."
 zig version || { echo "Zig installation failed!"; exit 1; }
 
 # Define the desired Ghostty commit
-GHOSTTY_COMMIT="f1f1120749b7494c89689d993d5a893c27c236a5" # Change this to the actual commit hash
+GHOSTTY_COMMIT="f1f1120749b7494c89689d993d5a893c27c236a5" # Change this to the selected commit hash
 
 # Check if Ghostty is installed and at the correct commit
 if command -v ghostty &> /dev/null; then

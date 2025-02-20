@@ -42,32 +42,16 @@ fi
 echo "Checking Zig version..."
 zig version || { echo "Zig installation failed!"; exit 1; }
 
-# Define the desired Ghostty commit
-GHOSTTY_COMMIT="f1f1120749b7494c89689d993d5a893c27c236a5" # Change this to the actual commit hash
-
-# Check if Ghostty is installed and at the correct commit
+# Check if Ghostty is installed
 if command -v ghostty &> /dev/null; then
-    CURRENT_COMMIT=$(cd "$(dirname "$(command -v ghostty)")/../share/ghostty" && git rev-parse HEAD 2>/dev/null || echo "unknown")
-    if [[ "$CURRENT_COMMIT" == "$GHOSTTY_COMMIT" ]]; then
-        echo "Ghostty is already installed and up to date (commit $GHOSTTY_COMMIT). Skipping installation."
-        exit 0
-    else
-        echo "Ghostty is installed but at a different commit ($CURRENT_COMMIT). Updating to $GHOSTTY_COMMIT..."
-        sudo rm -rf "$(dirname "$(command -v ghostty)")/../share/ghostty" # Remove old version
-    fi
+    echo "Ghostty is already installed. Skipping installation."
 else
-    echo "Ghostty is not installed. Proceeding with installation."
+    echo "Cloning and building Ghostty..."
+    git clone https://github.com/ghostty-org/ghostty
+    cd ghostty
+    sudo zig build -p /usr -Doptimize=ReleaseFast
+    echo "Ghostty installed successfully."
 fi
-
-# Clone and build Ghostty
-echo "Cloning and building Ghostty..."
-cd "$TMP_DIR"
-git clone https://github.com/ghostty-org/ghostty
-cd ghostty
-git checkout "$GHOSTTY_COMMIT"
-
-sudo zig build -p /usr -Doptimize=ReleaseFast
-echo "Ghostty installed successfully."
 
 # Clean up temporary files
 echo "Cleaning up temporary files..."

@@ -26,7 +26,7 @@ cd myghostty
 Change the permissions to make the script executable:
 
 ```bash
-chmod +x install-ghostty.sh
+chmod +x install_ghostty.sh
 ```
 
 ### 3. Run the script
@@ -34,7 +34,7 @@ chmod +x install-ghostty.sh
 Execute the script to install **Ghostty** and its dependencies:
 
 ```bash
-./install-ghostty.sh
+./install_ghostty.sh
 ```
 
 The script will:

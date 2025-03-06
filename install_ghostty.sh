@@ -64,10 +64,19 @@ echo "Cloning and building Ghostty..."
 cd "$TMP_DIR"
 git clone https://github.com/ghostty-org/ghostty
 cd ghostty
-git checkout "$GHOSTTY_COMMIT"
+git -c advice.detachedHead=false checkout "$GHOSTTY_COMMIT"
 
 sudo zig build -p /usr -Doptimize=ReleaseFast
 echo "Ghostty installed successfully."
+
+# Ensure ~/.config/ghostty exists
+mkdir -p "$HOME/.config/ghostty"
+
+# Copy config from cloned repo to ~/.config/ghostty
+cp "$TMP_DIR/ghostty/config" "$HOME/.config/ghostty/" || echo "Warning: Failed to copy Ghostty config file."
+
+echo "Ghostty configuration file installed to ~/.config/ghostty/config"
+
 
 # Clean up temporary files
 echo "Cleaning up temporary files..."

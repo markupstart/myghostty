@@ -1,37 +1,23 @@
 #!/bin/bash
 
+# Set up error handling
 set -e
 
-# Configurable Ghostty version — can be passed as first argument or defaults to v1.1.2
-GHOSTTY_VERSION="${1:-v1.1.2}"
-
-ZIG_REQUIRED_VERSION="0.13.0"
-ZIG_BINARY="/usr/local/bin/zig"
-
-# Cleanup function to remove temporary files on exit
-cleanup() {
-    if [[ -d "$TMP_DIR" ]]; then
-        echo "Cleaning up temporary files..."
-        sudo rm -rf "$TMP_DIR"
-    fi
-}
-trap cleanup EXIT
-
-# Install dependencies
+# Dependencies
 echo "Installing dependencies..."
 sudo apt update
 sudo apt install -y libgtk-4-dev libadwaita-1-dev git blueprint-compiler
 
-# Create temporary directory
+# Create a temporary directory for the build
 TMP_DIR=$(mktemp -d)
 echo "Using temporary directory: $TMP_DIR"
 
-# Compare Zig versions to ensure installed version is >= 0.13.0
+# Check if Zig is installed and the version is 0.13.0 or higher
+ZIG_REQUIRED_VERSION="0.13.0"
+ZIG_BINARY="/usr/local/bin/zig"
 check_zig_version() {
     local installed_version
     installed_version=$(zig version 2>/dev/null || echo "0.0.0")
-
-    # Sort versions and ensure installed >= required
     if [ "$(printf '%s\n' "$ZIG_REQUIRED_VERSION" "$installed_version" | sort -V | head -n1)" == "$ZIG_REQUIRED_VERSION" ]; then
         return 0
     else
@@ -39,65 +25,90 @@ check_zig_version() {
     fi
 }
 
-# Determine architecture (x86_64 or aarch64)
-ARCH=$(uname -m)
-case "$ARCH" in
-    x86_64) ZIG_ARCH="x86_64" ;;
-    aarch64) ZIG_ARCH="aarch64" ;;
-    *) echo "Unsupported architecture: $ARCH"; exit 1 ;;
-esac
-
-# Install Zig if not present or outdated
 if command -v zig &> /dev/null && check_zig_version; then
-    echo "Zig $ZIG_REQUIRED_VERSION or newer is already installed."
+    echo "Zig $ZIG_REQUIRED_VERSION or higher is already installed. Skipping installation."
 else
-    echo "Downloading and installing Zig $ZIG_REQUIRED_VERSION for $ZIG_ARCH..."
-    ZIG_URL="https://ziglang.org/download/$ZIG_REQUIRED_VERSION/zig-linux-$ZIG_ARCH-$ZIG_REQUIRED_VERSION.tar.xz"
+    echo "Downloading and installing Zig $ZIG_REQUIRED_VERSION..."
+    ZIG_URL="https://ziglang.org/download/$ZIG_REQUIRED_VERSION/zig-linux-x86_64-$ZIG_REQUIRED_VERSION.tar.xz"
     cd "$TMP_DIR"
     wget "$ZIG_URL"
-    tar -xf "zig-linux-$ZIG_ARCH-$ZIG_REQUIRED_VERSION.tar.xz"
-
-    sudo rm -rf /usr/local/zig
-    sudo mv "zig-linux-$ZIG_ARCH-$ZIG_REQUIRED_VERSION" /usr/local/zig
+    tar -xf "zig-linux-x86_64-$ZIG_REQUIRED_VERSION.tar.xz"
+    sudo mv "zig-linux-x86_64-$ZIG_REQUIRED_VERSION" /usr/local/zig
     sudo ln -sf /usr/local/zig/zig /usr/local/bin/zig
-
     echo "Zig $ZIG_REQUIRED_VERSION installed successfully."
 fi
 
 # Verify Zig installation
-echo "Verifying Zig installation..."
+echo "Checking Zig version..."
 zig version || { echo "Zig installation failed!"; exit 1; }
 
-# Clone and build Ghostty if not already installed
+# Define the desired Ghostty commit
+GHOSTTY_COMMIT="f1f1120749b7494c89689d993d5a893c27c236a5" # Change this to the selected commit hash
+
+# Check if Ghostty is installed and at the correct commit
 if command -v ghostty &> /dev/null; then
-    echo "Ghostty already installed. Skipping clone and build."
+    CURRENT_COMMIT=$(cd "$(dirname "$(command -v ghostty)")/../share/ghostty" && git rev-parse HEAD 2>/dev/null || echo "unknown")
+    if [[ "$CURRENT_COMMIT" == "$GHOSTTY_COMMIT" ]]; then
+        echo "Ghostty is already installed and up to date (commit $GHOSTTY_COMMIT). Skipping installation."
+        exit 0
+    else
+        echo "Ghostty is installed but at a different commit ($CURRENT_COMMIT). Updating to $GHOSTTY_COMMIT..."
+        sudo rm -rf "$(dirname "$(command -v ghostty)")/../share/ghostty" # Remove old version
+    fi
 else
-    echo "Cloning and building Ghostty version $GHOSTTY_VERSION..."
-    cd "$TMP_DIR"
-    git clone https://github.com/ghostty-org/ghostty.git
-    cd ghostty
-    git -c advice.detachedHead=false checkout "$GHOSTTY_VERSION"
+    echo "Ghostty is not installed. Proceeding with installation."
+fi
 
-    # Build and install
-    zig build -Doptimize=ReleaseFast
-    sudo install -Dm755 zig-out/bin/ghostty /usr/local/bin/ghostty
+# Clone and build Ghostty
+echo "Cloning and building Ghostty..."
+cd "$TMP_DIR"
+git clone https://github.com/ghostty-org/ghostty
+cd ghostty
+git -c advice.detachedHead=false checkout "$GHOSTTY_COMMIT"
 
-    echo "Ghostty $GHOSTTY_VERSION installed successfully."
+sudo zig build -p /usr -Doptimize=ReleaseFast
+echo "Ghostty installed successfully."
+
+# Clean up temporary files
+echo "Cleaning up temporary files..."
+if [[ -d "$TMP_DIR" ]]; then
+    sudo rm -rf "$TMP_DIR"
+    echo "Temporary files removed."
+else
+    echo "No temporary files to remove."
 fi
 
 # Ensure ~/.config/ghostty directory exists
 mkdir -p "$HOME/.config/ghostty"
 
-# Create a default config file if not present
+# Define the desired config settings
 CONFIG_FILE="$HOME/.config/ghostty/config"
+DESIRED_CONFIG="
+font-family = SauceCodePro Nerd Font Mono
+font-size = 16
+background-opacity = 0.90
+theme = nightfox
+"
+
+# Create or update the config file
 if [[ ! -f "$CONFIG_FILE" ]]; then
-    echo "Creating basic ghostty config at $CONFIG_FILE..."
-    cat <<EOF > "$CONFIG_FILE"
-# Ghostty configuration file
-# Customize this to your liking
-EOF
+    echo "Creating ghostty config with default settings at $CONFIG_FILE..."
+    echo "$DESIRED_CONFIG" > "$CONFIG_FILE"
 else
-    echo "Ghostty config already exists at $CONFIG_FILE."
+    echo "Updating ghostty config at $CONFIG_FILE to ensure desired settings are present..."
+
+    # Add or update each desired setting (basic approach)
+    for setting in "font-family" "font-size" "background-opacity" "theme"; do
+        value=$(echo "$DESIRED_CONFIG" | grep "^$setting" | cut -d'=' -f2-)
+        if grep -q "^$setting" "$CONFIG_FILE"; then
+            # Update existing line
+            sed -i "s|^$setting.*|$setting = $value|" "$CONFIG_FILE"
+        else
+            # Append if not present
+            echo "$setting = $value" >> "$CONFIG_FILE"
+        fi
+    done
 fi
 
-echo "Ghostty installation complete!"
+
+echo "Installation process completed successfully!"

@@ -76,7 +76,7 @@ else
     cd "$TMP_DIR"
     git clone https://github.com/ghostty-org/ghostty.git
     cd ghostty
-    git checkout "$GHOSTTY_VERSION"
+    git -c advice.detachedHead=false checkout "$GHOSTTY_VERSION"
 
     # Build and install
     zig build -Doptimize=ReleaseFast

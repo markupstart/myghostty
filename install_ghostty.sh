@@ -12,9 +12,8 @@ sudo apt install -y libgtk-4-dev libadwaita-1-dev git blueprint-compiler
 TMP_DIR=$(mktemp -d)
 echo "Using temporary directory: $TMP_DIR"
 
-# Check if Zig is installed and the version is 0.13.0 or higher
+# Check if Zig is installed and at least version 0.13.0
 ZIG_REQUIRED_VERSION="0.13.0"
-ZIG_BINARY="/usr/local/bin/zig"
 check_zig_version() {
     local installed_version
     installed_version=$(zig version 2>/dev/null || echo "0.0.0")
@@ -26,11 +25,11 @@ check_zig_version() {
 }
 
 if command -v zig &> /dev/null && check_zig_version; then
-    echo "Zig $ZIG_REQUIRED_VERSION or higher is already installed. Skipping installation."
+    echo "Zig $ZIG_REQUIRED_VERSION or higher is already installed."
 else
     echo "Downloading and installing Zig $ZIG_REQUIRED_VERSION..."
-    ZIG_URL="https://ziglang.org/download/$ZIG_REQUIRED_VERSION/zig-linux-x86_64-$ZIG_REQUIRED_VERSION.tar.xz"
     cd "$TMP_DIR"
+    ZIG_URL="https://ziglang.org/download/$ZIG_REQUIRED_VERSION/zig-linux-x86_64-$ZIG_REQUIRED_VERSION.tar.xz"
     wget "$ZIG_URL"
     tar -xf "zig-linux-x86_64-$ZIG_REQUIRED_VERSION.tar.xz"
     sudo mv "zig-linux-x86_64-$ZIG_REQUIRED_VERSION" /usr/local/zig
@@ -39,49 +38,29 @@ else
 fi
 
 # Verify Zig installation
-echo "Checking Zig version..."
 zig version || { echo "Zig installation failed!"; exit 1; }
 
-# Define the desired Ghostty commit
-GHOSTTY_COMMIT="f1f1120749b7494c89689d993d5a893c27c236a5" # Change this to the selected commit hash
+# Define the desired Ghostty commit (this should match a commit hash you trust)
+GHOSTTY_COMMIT="f1f1120749b7494c89689d993d5a893c27c236a5"
 
-# Check if Ghostty is installed and at the correct commit
-if command -v ghostty &> /dev/null; then
-    CURRENT_COMMIT=$(cd "$(dirname "$(command -v ghostty)")/../share/ghostty" && git rev-parse HEAD 2>/dev/null || echo "unknown")
-    if [[ "$CURRENT_COMMIT" == "$GHOSTTY_COMMIT" ]]; then
-        echo "Ghostty is already installed and up to date (commit $GHOSTTY_COMMIT). Skipping installation."
-        exit 0
-    else
-        echo "Ghostty is installed but at a different commit ($CURRENT_COMMIT). Updating to $GHOSTTY_COMMIT..."
-        sudo rm -rf "$(dirname "$(command -v ghostty)")/../share/ghostty" # Remove old version
-    fi
-else
-    echo "Ghostty is not installed. Proceeding with installation."
-fi
-
-# Clone and build Ghostty
-echo "Cloning and building Ghostty..."
+# Always clone, checkout and build Ghostty from the desired commit
+echo "Cloning and building Ghostty from commit $GHOSTTY_COMMIT..."
 cd "$TMP_DIR"
-git clone https://github.com/ghostty-org/ghostty
+git clone https://github.com/ghostty-org/ghostty.git
 cd ghostty
 git -c advice.detachedHead=false checkout "$GHOSTTY_COMMIT"
 
 sudo zig build -p /usr -Doptimize=ReleaseFast
 echo "Ghostty installed successfully."
 
-# Clean up temporary files
+# Cleanup
 echo "Cleaning up temporary files..."
-if [[ -d "$TMP_DIR" ]]; then
-    sudo rm -rf "$TMP_DIR"
-    echo "Temporary files removed."
-else
-    echo "No temporary files to remove."
-fi
+sudo rm -rf "$TMP_DIR"
 
 # Ensure ~/.config/ghostty directory exists
 mkdir -p "$HOME/.config/ghostty"
 
-# Define the desired config settings
+# Desired ghostty configuration
 CONFIG_FILE="$HOME/.config/ghostty/config"
 DESIRED_CONFIG="
 font-family = SauceCodePro Nerd Font Mono
@@ -97,18 +76,14 @@ if [[ ! -f "$CONFIG_FILE" ]]; then
 else
     echo "Updating ghostty config at $CONFIG_FILE to ensure desired settings are present..."
 
-    # Add or update each desired setting (basic approach)
     for setting in "font-family" "font-size" "background-opacity" "theme"; do
         value=$(echo "$DESIRED_CONFIG" | grep "^$setting" | cut -d'=' -f2-)
         if grep -q "^$setting" "$CONFIG_FILE"; then
-            # Update existing line
             sed -i "s|^$setting.*|$setting = $value|" "$CONFIG_FILE"
         else
-            # Append if not present
             echo "$setting = $value" >> "$CONFIG_FILE"
         fi
     done
 fi
 
-
-echo "Installation process completed successfully!"
+echo "Ghostty installation and configuration complete."

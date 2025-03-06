@@ -6,7 +6,7 @@ set -e
 # Dependencies
 echo "Installing dependencies..."
 sudo apt update
-sudo apt install -y libgtk-4-dev libadwaita-1-dev git
+sudo apt install -y libgtk-4-dev libadwaita-1-dev git blueprint-compiler
 
 # Create a temporary directory for the build
 TMP_DIR=$(mktemp -d)
@@ -49,9 +49,18 @@ else
     echo "Cloning and building Ghostty..."
     git clone https://github.com/ghostty-org/ghostty
     cd ghostty
+    git checkout v1.1.2
     sudo zig build -p /usr -Doptimize=ReleaseFast
     echo "Ghostty installed successfully."
 fi
+
+# Ensure ~/.config/ghostty exists
+mkdir -p "$HOME/.config/ghostty"
+
+# Copy config from cloned repo to ~/.config/ghostty
+cp "$TMP_DIR/ghostty/config" "$HOME/.config/ghostty/" || echo "Warning: Failed to copy Ghostty config file."
+
+echo "Ghostty configuration file installed to ~/.config/ghostty/config"
 
 # Clean up temporary files
 echo "Cleaning up temporary files..."

@@ -5,8 +5,6 @@
 
 This script automates the installation of **Ghostty** on Debian 12 using source files. It installs necessary dependencies, downloads and installs **Zig 0.13.0**, and builds **Ghostty** from source. It also ensures a clean installation by removing temporary files after the process.
 
-![2025-03-26_15-54](https://github.com/user-attachments/assets/ec28f84d-6dce-449c-ac07-9ee8b0eefaca)
-
 ## Prerequisites
 
 - Debian 12 (or a similar Debian-based distribution)

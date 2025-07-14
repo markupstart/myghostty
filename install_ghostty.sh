@@ -40,11 +40,16 @@ fi
 # Verify Zig installation
 zig version || { echo "Zig installation failed!"; exit 1; }
 
+# Define the Ghostty commit that works with Debian 12's older libraries
+# This is the commit shown in your working installation
+GHOSTTY_COMMIT="tip"
+
 # Always clone, checkout and build Ghostty from the desired commit
 echo "Cloning and building Ghostty"
 cd "$TMP_DIR"
 git clone https://github.com/ghostty-org/ghostty.git
 cd ghostty
+git -c advice.detachedHead=false checkout "$GHOSTTY_COMMIT"
 
 sudo zig build -p /usr -Doptimize=ReleaseFast
 echo "Ghostty installed successfully."

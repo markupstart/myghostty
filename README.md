@@ -3,7 +3,7 @@
 > 
 ## Ghostty Installation Script for Debian 13
 
-This script automates the installation of **Ghostty** on Debian 12 using source files. It installs necessary dependencies, downloads and installs **Zig 0.14.0**, and builds **Ghostty** from source. It also ensures a clean installation by removing temporary files after the process.
+This script automates the installation of **Ghostty** on Debian 13 using source files. It installs necessary dependencies, downloads and installs **Zig 0.14.0**, and builds **Ghostty** from source. It also ensures a clean installation by removing temporary files after the process.
 
 ## Prerequisites
 

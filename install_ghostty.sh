@@ -6,7 +6,7 @@ set -e
 # Dependencies
 echo "Installing dependencies..."
 sudo apt update
-sudo apt install -y libgtk-4-dev libadwaita-1-dev git blueprint-compiler libgtk-layer-shell-dev
+sudo apt install -y libgtk-4-dev libadwaita-1-dev git blueprint-compiler libgtk4-layer-shell-dev
 
 # Create a temporary directory for the build
 TMP_DIR=$(mktemp -d)

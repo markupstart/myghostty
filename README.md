@@ -34,7 +34,7 @@ The script will:
 4. Build and install **Ghostty** with optimization for performance.
 5. Clean up temporary files after the installation is complete.
 
-### 4. Verify the installation
+### Verify the installation
 
 To verify that **Zig** has been installed successfully:
 
